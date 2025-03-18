@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+    <name>RimRails</name>
+    <author>yaboie88</author>
+    <packageId>yaboie88.rimrails</packageId>
+    <supportedVersions>
+        <li>1.5</li>
+    </supportedVersions>
+    <description>
+        RimRails – Build Your Own Rail System!
+        
+        Tired of slow-moving pawns struggling to get from one side of your colony to the other? RimRails introduces simple yet effective train tracks that allow your pawns to zip across your settlements with blazing speed!
+
+        Features:
+        Fast Travel – Pawns and tamed animals move 5x faster on train tracks!
+        Seamless Integration – Tracks automatically connect to create a smooth railway network.
+        Affordable and Efficient – Cheap to build and easy to place, train tracks make large colonies more accessible.
+        Perfect for Rail-Based Colonies – Design railroad cities, transport goods faster, or create dedicated travel routes.
+        Immersive Mechanics – Only colonists and their animals benefit from the speed boost. Raiders? They’re out of luck!
+        Auto-Clearing Tracks – Pawns automatically clear grass and small plants when walking on tracks, keeping them tidy.
+        Layered Construction – Tracks can now be built under walls, fences, and doors, just like power conduits!
+
+        Build your railway empire and watch your colony become a connected, high-speed civilization!
+
+        How to Use
+        - Found under the "Structure" tab in the Architect menu.
+        - Costs 2 Steel and 4 Wood per tile.
+        - Unlocks after researching **Stonecutting**.
+        - Pawns automatically use the fastest path, preferring train tracks over terrain.
+
+        **Support My Work!**
+        If you enjoy RimRails and want to support future development, consider donating on **Patreon** or reporting bugs on **GitHub**!
+
+        **Support me here:**  
+        [Patreon](https://patreon.com/yaboie88)  
+		
+        **Report bugs and contribute:**  
+        [GitHub](https://github.com/ernestDelgado/RimRails)
+    </description>
+</ModMetaData>
