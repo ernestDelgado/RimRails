@@ -47,6 +47,7 @@
     <designationCategory>Structure</designationCategory>
     <staticSunShadowHeight>0.10</staticSunShadowHeight>
     <repairEffect>ConstructMetal</repairEffect>
+	<clearBuildingArea>false</clearBuildingArea>
 
     <placeWorkers>
       <li>RimRails.PlaceWorker_AllowOnTrack</li>

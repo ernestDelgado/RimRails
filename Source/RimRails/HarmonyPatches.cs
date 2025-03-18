@@ -48,20 +48,28 @@ namespace RimRails
             }
 
             bool hasTrainTrack = map.thingGrid.ThingsListAt(c).Any(thing => thing.def.defName == "TrainTracks");
+            bool hasBlockingWall = map.thingGrid.ThingsListAt(c).Any(thing => thing.def.passability == Traversability.Impassable);
 
-            // ✅ Train tracks should always be preferred
-            if (hasTrainTrack)
+            // ✅ If there's a train track and it's **not blocked**, set path cost to 0
+            if (hasTrainTrack && !hasBlockingWall)
             {
                 __result = 0;
                 return;
             }
 
+            // ✅ If there's a wall **on the tracks**, increase path cost so pawns avoid it
+            if (hasTrainTrack && hasBlockingWall)
+            {
+                __result = 9999; // ✅ Make walls on tracks completely impassable
+                return;
+            }
+
             // ✅ Get the terrain & floor at the current cell
             TerrainDef terrain = map.terrainGrid.TerrainAt(c);
-            bool hasFloor = terrain?.layerable == true; // Floors are layerable
+            bool hasFloor = terrain?.layerable == true;
 
             // ✅ Scale path cost for all **natural terrain**
-            if (terrain != null && !hasFloor) // If it's **not** a floor
+            if (terrain != null && !hasFloor)
             {
                 __result = Math.Min(__result * RimRailsSettings.scaleUp, 10000);
             }
@@ -73,6 +81,7 @@ namespace RimRails
             }
         }
     }
+
 
     // ✅ Adjust Pawn Movement Speed Based on Path Cost Scaling
     [HarmonyPatch(typeof(Pawn_PathFollower), "CostToMoveIntoCell", new Type[] { typeof(IntVec3) })]
@@ -263,18 +272,14 @@ namespace RimRails
         {
             base.SpawnSetup(map, respawningAfterLoad);
 
-            // ✅ Ensure train tracks have the lowest possible path cost
-            map.pathing.Normal.pathGrid.pathGrid[map.cellIndices.CellToIndex(Position)] = 0;
-
-            // ✅ Recalculate pathfinding when tracks are placed
-            map.pathing.RecalculateAllPerceivedPathCosts();
+            // ✅ No need to set path cost here since Harmony patch handles it
         }
 
         public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
         {
             base.Destroy(mode);
 
-            // ✅ When destroyed, reset pathfinding
+            // ✅ Keep this, so pathfinding recalculates when tracks are destroyed
             if (Map != null)
             {
                 Map.pathing.RecalculateAllPerceivedPathCosts();
