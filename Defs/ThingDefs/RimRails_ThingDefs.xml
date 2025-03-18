@@ -1,67 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-    <ThingDef ParentName="BuildingBase">
-        <defName>TrainTracks</defName>
-        <label>train track</label>
-        <description>A simple train track that allows faster movement and connects seamlessly.</description>
 
-        <thingClass>Building</thingClass>
-        <category>Building</category>
+  <ThingDef ParentName="BuildingBase">
+    <defName>TrainTracks</defName>
+    <label>Train Track</label>
+    <description>A simple train track that allows for faster movement.</description>
+    <thingClass>RimRails.Building_TrainTrack</thingClass>  <!-- ✅ Ensure this matches your C# class -->
+    <category>Building</category>
 
-        <graphicData>
-            <texPath>Things/Building/Linked/TrainTracks_Atlas</texPath>
-            <graphicClass>Graphic_Single</graphicClass>
-            <linkType>Basic</linkType>
-            <linkFlags>
-                <li>Custom1</li>  <!-- All train track pieces MUST use this -->
-            </linkFlags>
-        </graphicData>
+    <graphicData>
+      <texPath>Things/Building/Linked/TrainTracks_Atlas</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <linkType>Basic</linkType>
+      <linkFlags>
+        <li>Custom1</li>
+      </linkFlags>
+    </graphicData>
 
-        <uiIconPath>Things/Building/Linked/TrainTracks_MenuIcon</uiIconPath>
+    <uiIconPath>Things/Building/Linked/TrainTracks_MenuIcon</uiIconPath>
 
-        <altitudeLayer>Floor</altitudeLayer>
-        <pathCost>0</pathCost>
-        <pathCostIgnoreRepeat>true</pathCostIgnoreRepeat>
+    <altitudeLayer>Conduits</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <castEdgeShadows>false</castEdgeShadows>
+    <fillPercent>0.1</fillPercent>
+    <canOverlapZones>true</canOverlapZones>
+    <uiOrder>1500</uiOrder>
 
-        <passability>PassThroughOnly</passability>
-        <castEdgeShadows>false</castEdgeShadows>
-        <fillPercent>0.3</fillPercent>
-        <canOverlapZones>true</canOverlapZones>
-        <uiOrder>1500</uiOrder>
+    <building>
+      <ai_chillDestination>false</ai_chillDestination>
+      <isInert>true</isInert>
+      <isEdifice>false</isEdifice>  <!-- ✅ Ensure this is false -->
+      <blueprintGraphicData>
+        <texPath>Things/Building/Linked/TrainTracks_Blueprint_Atlas</texPath>
+      </blueprintGraphicData>
+    </building>
 
-        <statBases>
-            <MaxHitPoints>100</MaxHitPoints>
-            <WorkToBuild>50</WorkToBuild>
-            <Flammability>0.7</Flammability>
-        </statBases>
+    <placingDraggableDimensions>1</placingDraggableDimensions>
 
-        <building>
-            <ai_chillDestination>false</ai_chillDestination>
-            <isInert>true</isInert>
-            <blueprintGraphicData>
-                <texPath>Things/Building/Linked/TrainTracks_Blueprint_Atlas</texPath>
-            </blueprintGraphicData>
-        </building>
+    <costList>
+      <Steel>2</Steel>
+      <WoodLog>4</WoodLog>
+    </costList>
 
-        <placingDraggableDimensions>1</placingDraggableDimensions>
+    <rotatable>false</rotatable>
+    <neverMultiSelect>true</neverMultiSelect>
+    <designationCategory>Structure</designationCategory>
+    <staticSunShadowHeight>0.10</staticSunShadowHeight>
+    <repairEffect>ConstructMetal</repairEffect>
 
-        <costList>
-            <Steel>2</Steel>
-            <WoodLog>4</WoodLog>
-        </costList>
+    <placeWorkers>
+      <li>RimRails.PlaceWorker_AllowOnTrack</li>
+    </placeWorkers>
+	
+	<researchPrerequisites>
+        <li>Stonecutting</li>
+    </researchPrerequisites>
 
-        <rotatable>false</rotatable>
-        <selectable>true</selectable>
-        <neverMultiSelect>true</neverMultiSelect>
+  </ThingDef>
 
-        <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
-
-        <designationCategory>Structure</designationCategory>
-        <staticSunShadowHeight>0.10</staticSunShadowHeight>
-        <repairEffect>ConstructMetal</repairEffect>
-
-        <researchPrerequisites>
-            <li>Stonecutting</li>
-        </researchPrerequisites>
-    </ThingDef>
 </Defs>
+
+
+
+

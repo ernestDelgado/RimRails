@@ -182,16 +182,11 @@ namespace RimRails
             if (__instance.def.defName == "TrainTracks")
             {
                 IntVec3 cell = __instance.Position;
-
-                // ✅ Only update path cost if it isn't already 0
-                if (map.pathing.Normal.pathGrid.pathGrid[map.cellIndices.CellToIndex(cell)] != 0)
-                {
-                    map.pathing.Normal.pathGrid.pathGrid[map.cellIndices.CellToIndex(cell)] = 0;
-                    pendingTrackCells.Add(cell);
-                }
+                map.pathing.Normal.pathGrid.pathGrid[map.cellIndices.CellToIndex(cell)] = 0;
+                pendingTrackCells.Add(cell); // Store track cell for batch processing
 
                 int currentTick = Find.TickManager.TicksGame;
-                if (currentTick % 60 == 0) // ✅ Update every **60 ticks** (~1 second)
+                if (currentTick - lastUpdateTick > 15) // ✅ Only recalculate every 10 ticks
                 {
                     RecalculatePathfinding(map);
                     lastUpdateTick = currentTick;
@@ -207,6 +202,9 @@ namespace RimRails
             pendingTrackCells.Clear();
         }
     }
+
+
+
 
     [HarmonyPatch(typeof(Pawn), "TickRare")]
     public static class Patch_PawnTickRare
