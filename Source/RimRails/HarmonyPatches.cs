@@ -143,6 +143,23 @@ namespace RimRails
     }
 
 
+    [HarmonyPatch(typeof(Pawn_PathFollower), "TrySetNewPath")]
+    public static class Patch_AbandonIfStuck
+    {
+        public static void Postfix(Pawn_PathFollower __instance)
+        {
+            Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
+            if (pawn == null || pawn.Dead || pawn.Map == null || pawn.jobs == null) return;
+
+            // ✅ If a pawn fails to find a valid path, abandon the job
+            if (__instance.curPath == null || !__instance.curPath.Found)
+            {
+                pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
+                Log.Message($"RimRails: {pawn.Name} was stuck and abandoned the task.");
+            }
+        }
+    }
+
 
 
 
