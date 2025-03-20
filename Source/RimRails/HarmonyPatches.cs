@@ -129,19 +129,15 @@ namespace RimRails
             TerrainDef terrain = map.terrainGrid.TerrainAt(c);
             bool hasFloor = terrain != null && terrain.layerable; // Floors are layerable
 
-            float movementBoost = 1f / Mathf.Sqrt(RimRailsSettings.scaleUp); // ✅ Keeps movement balanced
+
+            int pathCost = map.pathing.Normal.pathGrid.CalculatedCostAt(c, false, IntVec3.Invalid);
+            if (pathCost == 0) pathCost = 1;
+
+            float movementBoost = 2f / Mathf.Sqrt(pathCost); // ✅ Keeps movement balanced
 
             if (terrain != null)
             {
-                if (!hasFloor) // ✅ If it's a **natural terrain** tile (soil, sand, marsh, etc.)
-                {
-                    __result *= movementBoost; // ✅ Apply speed compensation
-                }
-                else // ✅ If it's a **floor** and has NO path cost, add a temporary one
-                {
-                    int pathCost = map.pathing.Normal.pathGrid.CalculatedCostAt(c, false, IntVec3.Invalid);
-                    __result *= movementBoost; // ✅ Apply speed compensation to floors
-                }
+                __result *= movementBoost;
             }
         }
     }
