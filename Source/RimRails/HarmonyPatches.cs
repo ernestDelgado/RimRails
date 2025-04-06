@@ -60,7 +60,7 @@ namespace RimRails
             // ✅ If there's a wall **on the tracks**, increase path cost so pawns avoid it
             if (hasTrainTrack && hasBlockingWall)
             {
-                __result = 9999; // ✅ Make walls on tracks completely impassable
+                __result = PathGrid.ImpassableCost; // ✅ Make walls on tracks completely impassable
                 return;
             }
 
@@ -129,9 +129,19 @@ namespace RimRails
             TerrainDef terrain = map.terrainGrid.TerrainAt(c);
             bool hasFloor = terrain != null && terrain.layerable; // Floors are layerable
 
-
-            int pathCost = map.pathing.Normal.pathGrid.CalculatedCostAt(c, false, IntVec3.Invalid);
-            if (pathCost == 0) pathCost = 1;
+            int pathCost = 1;
+            try
+            {
+                if (map?.pathing?.Normal?.pathGrid != null)
+                {
+                    int calculated = map.pathing.Normal.pathGrid.CalculatedCostAt(c, false, c); // Use `c` instead of `IntVec3.Invalid`
+                    if (calculated > 0) pathCost = calculated;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"RimRails: Failed to get path cost at {c} - {ex.Message}");
+            }
 
             float movementBoost = 2f / Mathf.Sqrt(pathCost); // ✅ Keeps movement balanced
 
@@ -192,27 +202,69 @@ namespace RimRails
         }
     }
 
+
+
     // ✅ Adjust train track path cost when placed
     [HarmonyPatch(typeof(Thing), "SpawnSetup")]
     public static class Patch_TrainTrackPlacement
     {
-        private static HashSet<IntVec3> pendingTrackCells = new HashSet<IntVec3>();
+        private static readonly MethodInfo NotifyThingSpawnedMethod =
+            typeof(RegionDirtyer).GetMethod("Notify_ThingAffectingRegionsSpawned", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static readonly MethodInfo NotifyWalkabilityChangedMethod =
+            typeof(RegionDirtyer).GetMethod("Notify_WalkabilityChanged", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static readonly HashSet<IntVec3> pendingTrackCells = new HashSet<IntVec3>();
         private static int lastUpdateTick = 0;
 
         public static void Postfix(Thing __instance, Map map, bool respawningAfterLoad)
         {
+            IntVec3 cell = __instance.Position;
+
+            // Case 1: Track placed
             if (__instance.def.defName == "TrainTracks")
             {
-                IntVec3 cell = __instance.Position;
-                map.pathing.Normal.pathGrid.pathGrid[map.cellIndices.CellToIndex(cell)] = 0;
-                pendingTrackCells.Add(cell); // Store track cell for batch processing
+                // Invalidate region
+                NotifyThingSpawnedMethod?.Invoke(map.regionDirtyer, new object[] { __instance });
 
-                int currentTick = Find.TickManager.TicksGame;
-                if (currentTick - lastUpdateTick > 15) // ✅ Only recalculate every 10 ticks
+                // Check if there's a wall on this cell – if so, let wall win
+                var edifice = cell.GetEdifice(map);
+                bool walkable = edifice == null || edifice.def.passability != Traversability.Impassable;
+
+                NotifyWalkabilityChangedMethod?.Invoke(map.regionDirtyer, new object[] { cell, walkable });
+
+                // Optional: Reset path cost manually
+                map.pathing.Normal.pathGrid.pathGrid[map.cellIndices.CellToIndex(cell)] = 0;
+
+                pendingTrackCells.Add(cell);
+            }
+
+            // Case 2: Wall (or any impassable structure) placed
+            else if (__instance.def.passability == Traversability.Impassable)
+            {
+                // Invalidate region
+                NotifyThingSpawnedMethod?.Invoke(map.regionDirtyer, new object[] { __instance });
+
+                // Check if there's a track already under this wall
+                Thing track = map.thingGrid.ThingAt(cell, ThingDef.Named("TrainTracks"));
+                if (track != null)
                 {
-                    RecalculatePathfinding(map);
-                    lastUpdateTick = currentTick;
+                    // Force the wall’s impassable nature to win
+                    NotifyWalkabilityChangedMethod?.Invoke(map.regionDirtyer, new object[] { cell, false });
+
+                    // Optional: Reset path cost
+                    map.pathing.Normal.pathGrid.pathGrid[map.cellIndices.CellToIndex(cell)] = 0;
+
+                    pendingTrackCells.Add(cell);
                 }
+            }
+
+            // Recalculate pathfinding once every few ticks
+            int currentTick = Find.TickManager.TicksGame;
+            if (currentTick - lastUpdateTick > 15)
+            {
+                RecalculatePathfinding(map);
+                lastUpdateTick = currentTick;
             }
         }
 
@@ -220,10 +272,13 @@ namespace RimRails
         {
             if (pendingTrackCells.Count == 0) return;
 
-            map.pathing.RecalculateAllPerceivedPathCosts(); // ✅ Only call once per batch
+            map.pathing.RecalculateAllPerceivedPathCosts();
             pendingTrackCells.Clear();
         }
     }
+
+
+
 
 
 
@@ -278,7 +333,6 @@ namespace RimRails
             return false; // ❌ Otherwise, deny placement.
         }
     }
-
     public class Building_TrainTrack : Building
     {
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
