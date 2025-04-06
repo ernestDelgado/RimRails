@@ -26,10 +26,10 @@ Tired of slow-moving pawns struggling to get from one side of your colony to the
 ---
 
 ## 📢 Support My Work!
-If you enjoy **RimRails** and want to support my future mods, consider donating on Patreon!  
+If you enjoy **RimRails** and want to support my future mods, consider donating on Paypal! 
 Every bit helps me keep developing and updating mods for the community.  
 
-💖 **Support me here:** 👉 [patreon.com/yaboie88](https://patreon.com/yaboie88)  
+💖 **Support me here:** 👉 [paypal.me/yaboie88]  
 
 ### 🛠 Report Bugs / Contribute:
 Got a bug to report? Have a suggestion?  
